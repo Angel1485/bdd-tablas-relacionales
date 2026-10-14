@@ -1,0 +1,127 @@
+-----Taller Bd Bibliteca_db
+--PASO 1: Crear la base de datos
+CREATE DATABASE biblioteca_db;
+
+
+--PASO 2:Craer tablas---------
+CREATE TABLE libros (
+    codigo VARCHAR(5) PRIMARY KEY,
+    titulo VARCHAR(50) NOT NULL,
+    pagina INT NOT NULL
+);
+
+
+CREATE TABLE autores (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    pais VARCHAR(30) NOT NULL
+);
+
+
+--PASO 3: tabla de rompimiento
+CREATE TABLE libro_autor (
+    la_libro_codigo_fk VARCHAR(5) NOT NULL,
+    la_autor_id_fk INT NOT NULL,
+    anio_publicacion INT NOT NULL,
+    -- Clave compuesta
+    PRIMARY KEY (la_libro_codigo_fk, la_autor_id_fk),
+    -- Foreign Keys
+    FOREIGN KEY (la_libro_codigo_fk) REFERENCES libros(codigo),
+    FOREIGN KEY (la_autor_id_fk) REFERENCES autores(id)
+);
+
+--PASO 4: Insertar Datos
+INSERT INTO libros (codigo, titulo, pagina) VALUES
+('L001', 'Cien años de soledad', 471),
+('L002', 'El amor en los tiempos del cólera', 348),
+('L003', 'La ciudad y los perros', 419),
+('L004', 'Rayuela', 635);
+
+
+INSERT INTO autores (id, nombre, pais) VALUES
+(1, 'Gabriel García Márquez', 'Colombia'),
+(2, 'Mario Vargas Llosa', 'Perú'),
+(3, 'Julio Cortázar', 'Argentina');
+
+
+INSERT INTO libro_autor (la_libro_codigo_fk, la_autor_id_fk, anio_publicacion) VALUES
+('L001', 1, 1967),
+('L002', 1, 1985),
+('L003', 2, 1963),
+('L004', 3, 1963),
+('L001', 2, 1967);  
+
+--PASO 5: Consultas SQL
+
+--Consulta 1: INNER JOIN (título, autor, país, año)
+
+SELECT 
+    l.titulo,
+    a.nombre AS autor,
+    a.pais,
+    la.anio_publicacion
+FROM libro_autor la
+INNER JOIN libros l ON la.la_libro_codigo_fk = l.codigo
+INNER JOIN autores a ON la.la_autor_id_fk = a.id;
+
+--Consulta 2: Libros publicados después de 2020
+
+---Agregacion adicional
+INSERT INTO libros VALUES ('L005', 'Libro Moderno', 200);
+INSERT INTO libro_autor VALUES ('L005', 1, 2023);
+
+
+SELECT 
+    l.titulo,
+    la.anio_publicacion
+FROM libro_autor la
+INNER JOIN libros l ON la.la_libro_codigo_fk = l.codigo
+WHERE la.anio_publicacion > 2020;
+
+--Consulta 3: Autores de un país específico (WHERE)
+
+SELECT 
+    id,
+    nombre,
+    pais
+FROM autores
+WHERE pais = 'Colombia';
+
+--Consulta 4: Ordenar libros por año de publicación descendente
+
+SELECT 
+    l.titulo,
+    la.anio_publicacion
+FROM libro_autor la
+INNER JOIN libros l ON la.la_libro_codigo_fk = l.codigo
+ORDER BY la.anio_publicacion DESC;
+
+--Consulta 5: Contar cuántos libros tiene cada autor (COUNT + GROUP BY)
+
+SELECT 
+    a.nombre AS autor, COUNT(la.la_libro_codigo_fk) AS cantidad_libros
+FROM autores a
+INNER JOIN libro_autor la ON a.id = la.la_autor_id_fk
+GROUP BY a.nombre
+ORDER BY cantidad_libros DESC;
+
+--PASO 6: Modificación de la Tabla y actulziaciones y muestra
+
+ALTER TABLE libros
+ADD COLUMN precio DOUBLE PRECISION;
+
+UPDATE libros SET precio = 45000 WHERE codigo = 'L001';
+UPDATE libros SET precio = 38000 WHERE codigo = 'L002';
+UPDATE libros SET precio = 52000 WHERE codigo = 'L003';
+UPDATE libros SET precio = 41000 WHERE codigo = 'L004';
+
+SELECT 
+    titulo,
+    precio
+FROM libros;
+
+select * from autores a 
+
+select * from libro_autor la
+
+select * from libros l
